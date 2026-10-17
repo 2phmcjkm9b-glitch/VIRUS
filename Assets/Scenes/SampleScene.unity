@@ -2876,7 +2876,7 @@ Transform:
   m_GameObject: {fileID: 524038328}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2, y: 0, z: 0}
+  m_LocalPosition: {x: 10, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5671,6 +5671,7 @@ GameObject:
   - component: {fileID: 1274141724}
   - component: {fileID: 1274141726}
   - component: {fileID: 1274141727}
+  - component: {fileID: 1274141728}
   m_Layer: 0
   m_Name: VirusBody
   m_TagString: Untagged
@@ -5881,6 +5882,20 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 4
   m_CollisionDetection: 0
+--- !u!114 &1274141728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1274141719}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3df0e4d95b560734aa16502f3d7e7938, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VirusPulse
+  pulseSpeed: 2
+  pulseAmount: 0.04
 --- !u!1 &1287103828
 GameObject:
   m_ObjectHideFlags: 0
