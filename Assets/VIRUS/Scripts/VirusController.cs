@@ -7,10 +7,13 @@ public class VirusController : MonoBehaviour
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
 
+    [Header("Turning")]
+    [SerializeField] private float rotationSpeed = 540f;
+
     [Header("Stopping")]
     [SerializeField] private float stopDistance = 0.2f;
 
-    private Vector3 moveDirection;
+    private Vector3 moveDirection = Vector3.zero;
     private Camera mainCamera;
     private bool mouseControlsMovement;
 
@@ -22,6 +25,11 @@ public class VirusController : MonoBehaviour
     private void Update()
     {
         ReadMouseInput();
+        RotateVirus();
+    }
+
+    private void FixedUpdate()
+    {
         MoveVirus();
     }
 
@@ -30,6 +38,7 @@ public class VirusController : MonoBehaviour
         if (Mouse.current == null)
         {
             mouseControlsMovement = false;
+            moveDirection = Vector3.zero;
             return;
         }
 
@@ -55,8 +64,8 @@ public class VirusController : MonoBehaviour
             return;
 
         Vector2 mousePosition = Mouse.current.position.ReadValue();
-        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
 
+        Ray ray = mainCamera.ScreenPointToRay(mousePosition);
         Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
 
         if (!groundPlane.Raycast(ray, out float distance))
@@ -67,9 +76,9 @@ public class VirusController : MonoBehaviour
 
         Vector3 targetPosition = ray.GetPoint(distance);
         Vector3 direction = targetPosition - transform.position;
+
         direction.y = 0f;
 
-        // Stop before reaching the cursor to prevent jitter.
         if (direction.sqrMagnitude <= stopDistance * stopDistance)
         {
             moveDirection = Vector3.zero;
@@ -84,12 +93,42 @@ public class VirusController : MonoBehaviour
         if (moveDirection.sqrMagnitude == 0f)
             return;
 
-        transform.position += moveDirection * moveSpeed * Time.deltaTime;
+        Vector3 movement = moveDirection * moveSpeed * Time.fixedDeltaTime;
+
+        transform.position += movement;
+
+        // Keep the virus on the ground plane.
+        Vector3 position = transform.position;
+        position.y = 0f;
+        transform.position = position;
+    }
+
+    private void RotateVirus()
+    {
+        if (moveDirection.sqrMagnitude < 0.0001f)
+            return;
+
+        Quaternion targetRotation = Quaternion.LookRotation(
+            moveDirection,
+            Vector3.up
+        );
+
+        transform.rotation = Quaternion.RotateTowards(
+            transform.rotation,
+            targetRotation,
+            rotationSpeed * Time.deltaTime
+        );
     }
 
     public void SetMoveDirection(Vector3 direction)
     {
         mouseControlsMovement = false;
-        moveDirection = new Vector3(direction.x, 0f, direction.z).normalized;
+
+        moveDirection = new Vector3(
+            direction.x,
+            0f,
+            direction.z
+        ).normalized;
     }
 }
+
