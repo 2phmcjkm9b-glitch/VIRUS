@@ -52,7 +52,7 @@ public class VirusMovement : MonoBehaviour
         // Bring the virus closer to the left edge; keep right and bottom unchanged.
         targetPosition.x = Mathf.Clamp(
             targetPosition.x,
-            bottomLeft.x + spriteExtents.x * 0.65f,
+            bottomLeft.x + spriteExtents.x * 0.30f,
             topRight.x - spriteExtents.x * 0.65f
         );
         targetPosition.y = Mathf.Clamp(
