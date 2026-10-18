@@ -8,7 +8,6 @@ public class VirusMovement : MonoBehaviour
     [SerializeField] private float followSpeed = 12f;
 
     private Camera mainCamera;
-    private bool isFollowing;
 
     private void Awake()
     {
@@ -23,33 +22,31 @@ public class VirusMovement : MonoBehaviour
         if (mainCamera == null)
             return;
 
-        Vector3 pointerPosition = Vector3.zero;
+        Vector2 pointerPosition;
+        bool isPressed = false;
 
         if (Touchscreen.current != null &&
             Touchscreen.current.primaryTouch.press.isPressed)
         {
             pointerPosition = Touchscreen.current.primaryTouch.position.ReadValue();
-            isFollowing = true;
+            isPressed = true;
         }
-        else if (Mouse.current != null &&
-                 Mouse.current.leftButton.isPressed)
+        else if (Mouse.current != null && Mouse.current.leftButton.isPressed)
         {
             pointerPosition = Mouse.current.position.ReadValue();
-            isFollowing = true;
+            isPressed = true;
         }
         else
         {
-            isFollowing = false;
+            return;
         }
 
-        if (!isFollowing)
+        if (!isPressed)
             return;
 
-        Vector3 targetPosition = mainCamera.ScreenToWorldPoint(
-            new Vector3(pointerPosition.x, pointerPosition.y,
-                Mathf.Abs(mainCamera.transform.position.z - transform.position.z))
-        );
-
+        float distanceToCamera = Mathf.Abs(mainCamera.transform.position.z - transform.position.z);
+        Vector3 screenPosition = new Vector3(pointerPosition.x, pointerPosition.y, distanceToCamera);
+        Vector3 targetPosition = mainCamera.ScreenToWorldPoint(screenPosition);
         targetPosition.z = transform.position.z;
 
         transform.position = Vector3.MoveTowards(
