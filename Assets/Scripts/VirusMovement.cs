@@ -48,7 +48,8 @@ public class VirusMovement : MonoBehaviour
         Vector3 bottomLeft = mainCamera.ViewportToWorldPoint(new Vector3(0f, 0f, distanceToCamera));
         Vector3 topRight = mainCamera.ViewportToWorldPoint(new Vector3(1f, 1f, distanceToCamera));
 
-        Vector3 spriteExtents = spriteRenderer.bounds.extents;
+        // Use a smaller safety margin because the sprite image has transparent padding.
+        Vector3 spriteExtents = spriteRenderer.bounds.extents * 0.65f;
 
         targetPosition.x = Mathf.Clamp(
             targetPosition.x,
