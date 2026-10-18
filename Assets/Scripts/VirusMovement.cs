@@ -49,10 +49,10 @@ public class VirusMovement : MonoBehaviour
         Vector3 topRight = mainCamera.ViewportToWorldPoint(new Vector3(1f, 1f, distanceToCamera));
         Vector3 spriteExtents = spriteRenderer.bounds.extents;
 
-        // Slightly reduce the left margin; keep right and bottom unchanged.
+        // Move the left stopping point farther left by about one-fifth of the sprite width.
         targetPosition.x = Mathf.Clamp(
             targetPosition.x,
-            bottomLeft.x + spriteExtents.x * 0.80f,
+            bottomLeft.x + spriteExtents.x * 0.40f,
             topRight.x - spriteExtents.x * 0.65f
         );
         targetPosition.y = Mathf.Clamp(
