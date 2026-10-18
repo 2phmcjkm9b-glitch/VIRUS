@@ -1,99 +1,61 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Lets the virus follow the player's finger on a touchscreen,
-/// or the mouse while testing in the Unity Editor.
-/// Attach this component to the VirusBody GameObject.
-/// </summary>
 [RequireComponent(typeof(SpriteRenderer))]
-public sealed class VirusMovement : MonoBehaviour
+public class VirusMovement : MonoBehaviour
 {
-    [SerializeField, Min(0f)]
-    private float followSpeed = 12f;
+    [Header("Movement")]
+    [SerializeField] private float followSpeed = 12f;
 
     private Camera mainCamera;
-    private float objectZ;
-    private bool isDragging;
+    private bool isFollowing;
 
     private void Awake()
     {
         mainCamera = Camera.main;
-        objectZ = transform.position.z;
     }
 
     private void Update()
     {
         if (mainCamera == null)
-        {
             mainCamera = Camera.main;
-            if (mainCamera == null) return;
-        }
 
-        Vector2? pointerPosition = GetPointerPosition();
+        if (mainCamera == null)
+            return;
 
-        if (WasPointerPressed())
+        Vector3 pointerPosition = Vector3.zero;
+
+        if (Touchscreen.current != null &&
+            Touchscreen.current.primaryTouch.press.isPressed)
         {
-            isDragging = true;
+            pointerPosition = Touchscreen.current.primaryTouch.position.ReadValue();
+            isFollowing = true;
         }
-
-        if (WasPointerReleased())
+        else if (Mouse.current != null &&
+                 Mouse.current.leftButton.isPressed)
         {
-            isDragging = false;
+            pointerPosition = Mouse.current.position.ReadValue();
+            isFollowing = true;
         }
-
-        if (isDragging && pointerPosition.HasValue)
+        else
         {
-            Vector3 screenPosition = new Vector3(
-                pointerPosition.Value.x,
-                pointerPosition.Value.y,
-                Mathf.Abs(mainCamera.transform.position.z - objectZ));
-
-            Vector3 targetPosition = mainCamera.ScreenToWorldPoint(screenPosition);
-            targetPosition.z = objectZ;
-
-            transform.position = Vector3.Lerp(
-                transform.position,
-                targetPosition,
-                followSpeed * Time.deltaTime);
+            isFollowing = false;
         }
-    }
 
-    private static Vector2? GetPointerPosition()
-    {
-        if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.isPressed)
-            return Touchscreen.current.primaryTouch.position.ReadValue();
+        if (!isFollowing)
+            return;
 
-        if (Mouse.current != null && Mouse.current.leftButton.isPressed)
-            return Mouse.current.position.ReadValue();
+        Vector3 targetPosition = mainCamera.ScreenToWorldPoint(
+            new Vector3(pointerPosition.x, pointerPosition.y,
+                Mathf.Abs(mainCamera.transform.position.z - transform.position.z))
+        );
 
-        // Return the current pointer position while dragging.
-        if (Touchscreen.current != null)
-            return Touchscreen.current.primaryTouch.position.ReadValue();
+        targetPosition.z = transform.position.z;
 
-        if (Mouse.current != null)
-            return Mouse.current.position.ReadValue();
-
-        return null;
-    }
-
-    private static bool WasPointerPressed()
-    {
-        bool touchPressed = Touchscreen.current != null &&
-                            Touchscreen.current.primaryTouch.press.wasPressedThisFrame;
-        bool mousePressed = Mouse.current != null &&
-                            Mouse.current.leftButton.wasPressedThisFrame;
-
-        return touchPressed || mousePressed;
-    }
-
-    private static bool WasPointerReleased()
-    {
-        bool touchReleased = Touchscreen.current != null &&
-                             Touchscreen.current.primaryTouch.press.wasReleasedThisFrame;
-        bool mouseReleased = Mouse.current != null &&
-                             Mouse.current.leftButton.wasReleasedThisFrame;
-
-        return touchReleased || mouseReleased;
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            targetPosition,
+            followSpeed * Time.deltaTime
+        );
     }
 }
